@@ -1,0 +1,14 @@
+Uninstallation
+In the unlikely event that you would like to uninstall SDKMAN!, we don't have an automated way of doing this yet. If you really do want to remove it from your system, it is very easy to do so.The following will guide you through backing up, then removing the entire installation from your system.
+
+
+tar zcvf ~/sdkman-backup_$(date +%F-%kh%M).tar.gz -C ~/ .sdkman
+$ rm -rf ~/.sdkman
+
+The last step involves editing and removing the initialisation snippet from your .bashrc, .bash_profile and/or .profile files. If you use ZSH, remove it from the .zshrc file. The snippet of code to be removed looks something like this:
+
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+[[ -s "/home/dudette/.sdkman/bin/sdkman-init.sh" ]] && source "/home/dudette/.sdkman/bin/sdkman-init.sh"
+
+Once removed, you have successfully uninstalled SDKMAN! from your machine.

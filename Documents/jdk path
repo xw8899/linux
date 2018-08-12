@@ -1,0 +1,15 @@
+export JAVA_HOME=/home/xw/Program/jdk1.8.0_65
+export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/jre/lib
+export JRE_HOME=/home/xw/Program/jdk1.8.0_65/jre
+
+
+profile
+
+#set java environment
+
+JAVA_HOME=/usr/java/java-7-sun
+export JRE_HOME=/usr/java/java-7-sun/jre
+export CLASSPATH=.:$JAVA_HOME/lib:$JRE_HOME/lib:$CLASSPATH
+export PATH=$JAVA_HOME/bin:$JRE_HOME/bin:$PATH
+
+复制代码

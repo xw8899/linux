@@ -1,0 +1,28 @@
+wget -qO- https://get.docker.com/ | sh
+
+
+docker run -d -p 8080:8080 xwhttp
+
+docker run -i -t -p 8080:8080 xwhttp /bin/bash
+
+yum search jdk
+
+
+docker build -t myhttp .
+
+注意最后的一个“.”，可千万别漏掉了
+
+
+docker tag dl.dockerpool.com:5000/centos centos:centos7
+
+我上的命令中前面都没有sudo，怎么做到的？
+将当前用户添加到docker组后，重启docker如果不生效，就注销后再登录
+usermod -aG docker yourname
+sudo service docker restart
+试试命令 docker info
+如果提示错误，就注销后再登陆
+
+catalina.sh and startup.sh
+我们在宿主机安装tomcat后，一般用bin目录下的startup.sh启动服务,但是在作为docker镜像的启动命令，却不能用startup.sh，必须用catalina.sh run，否则，docker run后容器就退出了。
+详情请参考：http://www.linuxidc.com/Linux/2015-02/112889.htm
+

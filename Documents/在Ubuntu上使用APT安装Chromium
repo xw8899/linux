@@ -1,0 +1,27 @@
+在Ubuntu上使用APT安装Chromium有3种方法：
+1.在Ubuntu软件中心输入chromium，然后在结果中选择安装即可。
+2.在新立得软件包管理器中输入chromium，然后标记安装即可。
+3.打开终端，使用apt命令安装。
+前两种方法比较简单，下面主要介绍第三种方法。
+我们要安装chromium，但我们不知道包名，所以我们需要通过Tab键定位相关包：
+apt-get install chromium (接着按2下Tab键，会看到以下结果)
+xw@xwc:~$ apt-get install chromium-
+chromium-browser                  chromium-chromedriver-dbg
+chromium-browser-dbg              chromium-codecs-ffmpeg
+chromium-browser-l10n             chromium-codecs-ffmpeg-dbg
+chromium-bsu                      chromium-codecs-ffmpeg-extra
+chromium-bsu-data                 chromium-codecs-ffmpeg-extra-dbg
+chromium-chromedriver             
+
+然后我们可以大略确定就是包chromium-browser
+接着我们继续输入以下命令来查看chromium-browser的包依赖关系：
+apt-cache depends chromium-browser
+我们注意到这一条：建议: chromium-browser-l10n
+l10n包是语言包，里面包含中文，依赖的包会自动装上，建议的包需要指明安装。
+所以我们通过以下命令安装中文版chromium：
+sudo apt-get install chromium-browser chromium-browser-l10n
+卸载chromium：
+sudo apt-get autoremove --purge chromium-browser chromium-browser-l10n
+安装好后，设置浏览器字体为“文泉译微米黑”：
+扳手图标-高级设置-网络内容-更改字体和语言设置：
+字体全部选择“文泉译微米黑”，编码选择“GB18030”。下面看看效果吧：

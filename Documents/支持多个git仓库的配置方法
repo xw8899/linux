@@ -1,0 +1,20 @@
+步骤一：用ssh-keygen命令生成一组新的id_rsa_new和id_rsa_new.pub。
+
+ssh-keygen -t rsa -C "YourEMail"
+
+
+平时我们都是直接回车，默认生成id_rsa和id_rsa.pub。这里特别需要注意，出现提示输入文件名的时候要输入与默认配置不一样的文件名，比如：  id_rsa_new。
+
+步骤二：配置~/.ssh/config文件，以我自己的机器为例。
+
+#Default Git
+Host github  #名字
+  HostName github.com #或者直接写ip地址
+  User YourName #你在github上的用户名
+  IdentityFile github_id_rsa #假设你未github生成的私钥是github_id_rsa
+ 
+#Second Git
+Host csdn
+  HostName code.csdn.net
+  User YourName
+  IdentityFile csdn_id_rsa #假设你未github生成的私钥是github_id_rsa

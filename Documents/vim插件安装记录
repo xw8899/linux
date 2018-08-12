@@ -1,0 +1,17 @@
+vim插件安装
+https://github.com/tpope/vim-pathogen
+https://github.com/scrooloose/nerdtree
+
+2016-11-16
+downloads下的vimplugin
+bufexplorer
+http://www.vim.org/scripts/script.php?script_id=42 
+TagList
+http://www.vim.org/scripts/script.php?script_id=273
+WinManager
+http://www.vim.org/scripts/script.php?script_id=95
+MiniBufExplorer
+http://www.vim.org/scripts/script.php?script_id=159
+c/h switch
+http://www.vim.org/scripts/script.php?script_id=31
+另外，还安装了cscope：sudo apt-get install cscope

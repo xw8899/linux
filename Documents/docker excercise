@@ -1,0 +1,287 @@
+echo 'DOCKER_OPTS="-b=bridge0"' >> /etc/default/docker
+
+
+ sudo docker run -i -t centos /bin/bash
+
+
+ brctl show
+
+ sudo docker run -i -t --rm --net=none base /bin/bash
+
+
+
+
+1.进入root权限
+
+sudo su
+
+2.停止所有的container，这样才能够删除其中的images：
+
+docker stop $(docker ps -a -q)
+
+如果想要删除所有container的话再加一个指令：
+
+docker rm $(docker ps -a -q)
+
+3.查看当前有些什么images
+
+docker images
+
+4.删除images，通过image的id来指定删除谁
+
+docker rmi <image id>
+
+想要删除untagged images，也就是那些id为<None>的image的话可以用
+
+docker rmi $(docker images | grep "^<none>" | awk "{print $2}")
+
+要删除全部image的话
+
+docker rmi $(docker images -q)
+
+
+docker rm -f $(docker ps -a -q)
+
+sudo docker inspect -f "{{ .Name }}" aed84ee21bde
+
+
+
+docker run -d -P --name web --link db:db training/webapp python app.py
+
+docker run --rm --name web2 --link db:db training/webapp env
+
+ cat /proc/sys/net/ipv4/ip_forward
+
+
+
+
+
+如何修改 Data file 路径
+
+遇到的第一个问题，则是：docker 的数据都放到哪里了？显然，上面的 docker info 给了我们答案： 在/var/lib/docker/ 下。由于种种神奇的原因，我们希望尝试 修改 docker 的数据存放目录。
+
+编辑这个文件：vim /etc/sysconfig/docker，找到OPTIONS=--selinux-enabled -H fd://，修改为：OPTIONS=-g /mnt/docker0/data --selinux-enabled -H fd://。这样我们就成功的将 docker 目录修改成功了。
+
+执行 systemctl restart docker ，再 docker info ，可以看到目录已经修改成功了。
+如何使用国内的 docker 镜像源
+
+考虑 DockerPool 这个 docker poll。
+
+例如，我要下载 CentOS 7 的 docker 镜像，那么执行：
+
+docker pull dl.dockerpool.com:5000/centos:centos7
+
+镜像文件略微有点大，下得我心醉。在 DockerPoll Downloads 可以找到其它的镜像列表。
+
+下载完成后，要把第三方 registry 的下载的文件打上 tag
+
+docker tag dl.dockerpool.com:5000/centos:centos7 centos:centos7
+
+如何清理 docker 容器
+
+执行了一些简单的命令，比如docker run -t -i centos:centos7 ping baidu.com之后，再看 docker info ，发现 Containers 居然到了 4 。大惊，用 docker ps -a 查看后才知道，每次我用 docker run 的时候他都会新建一个 Container。试了下 docker rm ，一次只能删除一个。改用 docker rm $(docker ps -aq) ，成功删除它们。
+
+
+
+
+
+ Docker 配置文件位置
+
+Ｄocker 的配置文件可以设置大部分的后台进程参数，在各个操作系统中的存放位置不一致
+
+在 ubuntu 中的位置是：/etc/default/docker
+
+在 centos 中的位置是：/etc/sysconfig/docker
+
+
+
+
+
+
+docker push 192.168.2.29:5000
+
+docker tag 33cf1c0fe2ce 192.168.2.29:5000/centos:jackluo
+
+
+
+
+
+
+docker run --name='gitlab' -it --rm -e 'GITLAB_PORT=10080' -e 'GITLAB_SSH_PORT=10022' -p 10022:22 -p 10080:80 -v /var/run/docker.sock:/run/docker.sock -v $(which docker):/bin/docker
+
+
+
+username: root
+password: 5iveL!fe
+
+
+docker run --name=mysql -d \
+  -v /opt/gitlab/mysql:/var/lib/mysql \
+  sameersbn/mysql:latest
+
+
+ CREATE USER 'gitlab'@'%.%.%.%' IDENTIFIED BY 'password';
+CREATE DATABASE IF NOT EXISTS `gitlabhq_production` DEFAULT CHARACTER SET `utf8` COLLATE `utf8_unicode_ci`;
+GRANT ALL PRIVILEGES ON `gitlabhq_production`.* TO 'gitlab'@'%.%.%.%';
+
+docker run --name=gitlab -d \
+  -e 'DB_HOST=192.168.1.100' -e 'DB_NAME=gitlabhq_production' -e 'DB_USER=gitlab' -e 'DB_PASS=password' \
+  -v /opt/gitlab/data:/home/git/data \
+  sameersbn/gitlab:7.5.3
+
+
+  docker run --name=mysql -d \
+  -e 'DB_NAME=gitlabhq_production' -e 'DB_USER=gitlab' -e 'DB_PASS=password' \
+    -v /opt/mysql/data:/var/lib/mysql \
+    sameersbn/mysql:latest
+
+
+
+
+    docker run --name=gitlab -P -d -v /data/gitlab/data:/home/git/data -v /data/gitlab/mysql:/var/lib/mysql sameersbn/gitlab
+
+
+
+
+　--name是新生成的container的名字
+
+　　-d在后台运行这个container，也可以用-i，意思是交互式的运行container，用户可以看到输出，也可以输入
+
+　　-v把container里面的volumn映射到主机的存储，/opt/gitlab/data是主机的路径，/home/git/data是container里面的路径
+
+　　-P(大写)这个参数比较重要，是把所有container里面的端口都映射到主机上的随机端口，这样和主机在同一网络内的机器就可以访问container了。
+
+　　如果不想映射container里面所有端口，可以通过-p(小写)来进行单独的映射。
+
+　　这个命令是所有的命令中最重要的一个！(没有之一)    
+
+
+
+docker rm -f $(docker ps -a -q)
+
+docker stop $(docker ps -a -q)
+
+
+docker run \
+  --name=gitlab_redis \
+  -tid \
+  sameersbn/redis:latest
+
+
+docker run --name=gitlab_mysql \
+  -tid \
+  -e 'DB_NAME=gitlabhq_production' \
+  -e 'DB_USER=gitlab' \
+  -e 'DB_PASS=password' \
+  -v /data/gitlab/mysql:/var/lib/mysql \
+  sameersbn/mysql:latest
+
+
+docker run \
+  --name='gitlab' \
+  -itd \
+  --link gitlab_mysql:mysql \
+  --link gitlab_redis:redisio \
+  -e 'GITLAB_PORT=80' \
+  -e 'GITLAB_SSH_PORT=22' \
+  -e 'GITLAB_HOST=gitlab.example.com' \
+  -v /var/run/docker.sock:/run/docker.sock \
+  -v $(which docker):/bin/docker \
+  -v /data/gitlab/data:/home/git/data \
+  -v /data/gitlab/log:/var/log/gitlab \
+  sameersbn/gitlab
+
+
+docker run -p 22:22 -d \
+  -e "SMTP_USER=gitlab@host.com" -e "SMTP_PASS=password" \
+  -e "GITLAB_EMAIL=gitlab@host.com" -e "GITLAB_SUPPORT=gitlab@host.com" \
+  -e "GITLAB_SIGNUP=true" \
+  -e "GITLAB_HOST=gitlab.host.com" \
+  -v /data/gitlab/data:/home/git/data \
+  -v /data/gitlab/mysql:/var/lib/mysql \
+  sameersbn/gitlab
+
+
+
+  docker inspect ec1f12439d91
+
+
+  docker rm -f $(docker ps -a -q)
+
+
+docker run \
+    --name=gitlab_mysql \
+    -tid \
+    -e 'DB_NAME=gitlabhq_production' \
+    -e 'DB_USER=gitlab' \
+    -e 'DB_PASS=password' \
+    -v /data/gitlab/mysql:/var/lib/mysql \
+    sameersbn/mysql:latest
+
+
+
+MYSQL=$(docker run -tid  -e 'DB_USER=root' -e 'DB_PASS=admin' sameersbn/mysql)
+
+
+
+docker run \
+  --name=gitlab_redis \
+  -tid \
+  sameersbn/redis:latest
+
+
+
+docker run \
+    --name=gitlab_mysql \
+    -tid \
+    -e 'DB_NAME=gitlabhq_production' \
+    -e 'DB_USER=gitlab' \
+    -e 'DB_PASS=password' \
+    -v /data/gitlab/mysql:/var/lib/mysql \
+    sameersbn/mysql:latest    
+
+
+docker run \
+    --name='gitlab' \
+    -itd \
+    --link gitlab_mysql:mysql \
+    --link gitlab_redis:redisio \
+    -e 'GITLAB_PORT=80' \
+    -e 'GITLAB_SSH_PORT=22' \
+    -e 'GITLAB_HOST=gitlab.example.com' \
+    -v /var/run/docker.sock:/run/docker.sock \
+    -v $(which docker):/bin/docker \
+    -v /data/gitlab/data:/home/git/data \
+    -v /data/gitlab/log:/var/log/gitlab \
+    sameersbn/gitlab:latest
+
+
+
+docker run \
+    --name='gitlab' \
+    -itd \
+    --link gitlab_mysql:mysql \
+    --link gitlab_redis:redisio \
+    -e 'GITLAB_PORT=80' \
+    -e 'GITLAB_SSH_PORT=22' \
+    -e 'LDAP_ENABLED=true' \
+    -e 'LDAP_HOST=192.168.1.1' \
+    -e 'LDAP_PORT=389' \
+    -e 'LDAP_UID=sAMAccountName' \
+    -e 'LDAP_METHOD=plain' \
+    -e 'LDAP_BIND_DN=test@example.com' \
+    -e 'LDAP_PASS=passwd' \
+    -e 'LDAP_BASE=OU=example_users,DC=example-family,DC=com' \
+    -e 'LDAP_ACTIVE_DIRECTORY=true' \
+    -e 'LDAP_ALLOW_USERNAME_OR_EMAIL_LOGIN=false' \
+    -e 'GITLAB_HOST=gitlab.example.com' \
+    -e 'SMTP_ENABLED=true' \
+    -e 'SMTP_DOMAIN=example.com' \
+    -e 'SMTP_HOST=192.168.1.2' \
+    -e 'SMTP_PORT=25' \
+    -e 'SMTP_STARTTLS=false' \
+    -v /var/run/docker.sock:/run/docker.sock \
+    -v $(which docker):/bin/docker \
+    -v /opt/gitlab/data:/home/git/data \
+    -v /opt/gitlab/log:/var/log/gitlab \
+    sameersbn/gitlab:latest

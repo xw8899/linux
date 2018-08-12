@@ -1,0 +1,83 @@
+利用Dockerfile构建一个简单的java应用镜像，依赖环境比较简单，JDK，定制化的Tomcat（名为star-appserver）
+1、环境准备
+    ubuntu：14.04
+    docker : 1.4
+    jdk：jdk-8u31-linux-x64.gz
+    tomcat : 7.0（star-appserver）
+    在/usr/local下创建目录：sms，将jdk-8u31-linux-x64.gz和star-appserver（此处为了简单，已包含应用）拷贝到此目录下，由于Docker在构建镜像时，需将Dockerfile所在目录传给Docker daemon作为构建上下文，所以此目录下应包含构建时所依赖的各种环境。
+2、环境准备好后，在sms下创建Dockerfile（名字必须为Dockerfile）文件，内容如下
+
+    FROM ubuntu:latest
+    MAINTAINER zhangjy
+
+    #install JDK and TOMCAT
+    ADD jdk-8u31-linux-x64.gz  /usr/local/
+    ADD tomcat /usr/local/     #tomcat下为star-appserver，如果直接复制star-appserver，只会复制目录里边的内容，不会复制目录本身
+    ADD timezone /etc/
+
+    #启动脚本，用于从镜像启动容器时调用执行，见下面的ENTRYPOINT
+    ADD onStart.sh /usr/local/
+
+    ENV JAVA_HOME=/usr/local/jdk1.8.0_31 CLASSPATH=$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar PATH=$PATH:$JAVA_HOME/bin
+    RUN echo "JAVA_HOME=/usr/local/jdk1.8.0_31\nCALSSPATH=$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar\nPATH=$PATH:$JAVA_HOME/bin" >> /etc/profile
+
+    #start tomcat
+    ENTRYPOINT ["/usr/local/onStart.sh"]
+
+3、在sms下创建onStart.sh，并赋予执行权限，用于启动tomcat并输出日志（为了保证容器中有执行状态的进程，否则容器停止）
+    #!/bin/bash
+    /usr/local/star-appserver/bin/startup.sh
+    tail -f /usr/local/star-appserver/logs/stariboss.log
+4、在sms下执行命令，创建成功
+       $docker build -t zhangjy/starsms:v1 .
+   
+启动时，发现应用访问数据库报错：ORA-01882: timezone region  not found，原因是JVM默认使用Ubuntu的/etc/timezone里配置的时区，查看timezone时区为Etc/UTC，再查看ORACLE数据库支持的时区：select * from V$TIMEZONE_NAMES发现没有，于是又在sms目录下创建了一个timezone文件，将时区配置成Asia/Shanghai，在Dockerfile中加入到镜像/etc/目录下
+
+Dockerfile文件配置说明：
+FROM
+    表明基于哪个镜像创建
+MAINTAINER
+    作者和邮箱
+ADD
+    将目录或文件加入到镜像的某个目录，格式是ADD <源文件> <目标目录>
+RUN
+    有两种格式：
+
+    RUN <command> (the command is run in a shell - /bin/sh -c - shell form)
+    RUN ["executable", "param1", "param2"] (exec form)
+
+    默认RUN后的命令是在/bin/sh下执行，像Ubuntu默认/bin/sh是指向/bin/dash，如果想使用/bin/bash，则可按如下方式
+        RUN ["/bin/bash","-c","source /etc/profile"]
+    但需注意，这种方式不能解析类似于$HOME的参数引用
+ENV
+    设置环境变量，在镜像构建过程中和容器启动后均有效
+CMD
+
+    CMD在容器运行的时候提供一些命令及参数，用法如下：
+
+    CMD ["executable","param1","param2"] (exec form, this is the preferred form) 
+    CMD ["param1","param2"] (as default parameters to ENTRYPOINT) 
+    CMD command param1 param2 (shell form) 
+
+    - 第一种用法：运行一个可执行的文件并提供参数。
+    - 第二种用法：为ENTRYPOINT指定参数，即为ENTRYPOINT指定命令的默认参数，通过docker run命令传过来的参数会将其覆盖
+    - 第三种用法(shell form)：是以”/bin/sh -c”的方法执行的命令。
+
+    如指定:
+
+    1. CMD [“/bin/echo”, “this is a echo test ”] 
+
+    build后运行(假设镜像名为ec):
+
+    1. docker run ec 
+
+    就会输出: this is a echo test
+注意：如果在docker run命令后指定命令，如docker run ec echo 'test'，会将CMD的命令覆盖。CMD的命令不能接收run传过来的参数，而ENTRYPOINT可以
+ENTRYPOINT
+    有两种用法
+
+    ENTRYPOINT ["executable", "param1", "param2"] (the preferred exec form)
+    ENTRYPOINT command param1 param2 (shell form)
+
+    第一种可以接收docker run命令传过来的参数（即使docker run传过来的是命令，也会被当做参数处理），如果想覆盖，可使用docker run ... --entrypoint <COMMAND>
+

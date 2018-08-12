@@ -1,0 +1,4 @@
+let Tlist_Show_One_File=1
+let Tlist_Exit_OnlyWindow=1
+let Tlist_Use_Left_Window=1
+nnoremap <silent> <F8> :TlistToggle<CR>

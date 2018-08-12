@@ -1,0 +1,7 @@
+vim插件安装
+https://github.com/tpope/vim-pathogen
+https://github.com/scrooloose/nerdtree
+
+2016-11-16
+其他的见downloads下的vimplugin
+另外，还安装了cscope：sudo apt-get install cscope

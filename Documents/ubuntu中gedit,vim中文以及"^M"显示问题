@@ -1,0 +1,44 @@
+
+[转] ubuntu中gedit,vim中文以及"^M"显示问题
+http://blog.sina.com.cn/s/blog_54a1bca701015ni3.html
+1。 gedit中文显示问题的解决
+
+alt+F2 运行gconf-editor，在apps->gedit-2->preferences－＞encodings在右边的auto-detected中双击会弹出一个对话框添加一个GB18030。 
+添加好了关闭就行了，现在你的gedit可以显示中文了。如果你的版本不是9.04，比如说以前的版本，请根据所带字库添加相应的中文字符集。比如GB2312等等。
+
+2。vim中文显示问题的解决
+
+用户目录下创建.vimrc文件
+加入
+set fileencodings=utf-8,gb2312,gbk,gb18030
+set termencoding=utf-8
+set fileformats=unix
+set encoding=prc
+fileencodings中utf-8要在前面。
+
+3。用vim清除文本中的^M
+
+Windows系统的换行符为/r/n，而Linux/Unix系统则为/n，因此，在Windows里编辑过的文本文件到了Linux/Unix里，每一行都会多出一个^M。
+可以在Vim里用以下命令清除该字符：
+
+
+:%s//r//g
+
+或者
+
+:%s/^M//g
+注：命令中的^M
+
+ 是通过键入<ctrl-v><enter>
+
+或<ctrl-v><ctrl-m>
+
+生成的
+
+参考资料：
+
+1。http://isoar.info/2009/07/vim-tip-remove-the-m.html
+2。http://forum.ubuntu.org.cn/viewtopic.php?f=8&t=199046
+3。http://syre.blogbus.com/logs/5612091.html
+
+

@@ -1,0 +1,31 @@
+2、安装tagbar
+
+tagbar可以做为taglist的替代者，在~/.vim/bundle/目录执行安装命令如下：
+
+    git clone https://github.com/majutsushi/tagbar.git  
+
+
+之后同样可以在vimrc文件中设置快捷键：
+    nmap <F4> :TagbarToggle<CR>   "设置快捷键  
+    let g:tagbar_width = 40       "设置宽度，默认为40  
+    autocmd VimEnter * nested :call tagbar#autoopen(1)    "打开vim时自动打开tagbar
+    let g:tagbar_left = 1         "在左侧"  
+    let g:tagbar_right = 1        "在右侧  
+
+ 
+
+列举几点比taglist优化了的地方：
+
+(1)支持头文件的函数列表显示
+
+tagbar对函数的可见级别也是做了区分的，分别用+ - # 并配合着色来做了区分。
+
+(2)对面向对象的支持更好
+
+taglist虽然也会列出类列表，但是整体还是很不直观。
+
+(3)自动根据文件修改时间来重建
+
+taglist在这一点上体验就很不好，其实明明可以通过这种时间戳的方式来实现。
+
+（据说tagbar最好配置ctags使用，效果会更好）
