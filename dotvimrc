@@ -1,0 +1,4 @@
+syntax on
+filetype plugin indent on
+set gfn=Droid\ Sans\ Mono\ 12
+colorschem evening
